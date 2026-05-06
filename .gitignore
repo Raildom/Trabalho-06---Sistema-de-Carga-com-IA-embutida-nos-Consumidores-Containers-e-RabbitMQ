@@ -1,0 +1,15 @@
+# Ignora todas as pastas target em qualquer lugar do projeto
+**/target/
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.class
+*.tmp
+*.swp
+
+# Configurações do editor
+.vscode/
+.idea/
+.DS_Store

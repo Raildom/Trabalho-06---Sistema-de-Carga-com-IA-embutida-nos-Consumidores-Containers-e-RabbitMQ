@@ -1,0 +1,66 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app-net
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  message-generator:
+    build: messageGenerator/.
+    container_name: message-generator
+    volumes:
+      - ./Dataset_plates:/app/images/plates
+      - ./Dataset_signs:/app/images/signs
+      - ./libs:/app/libs
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-net
+    restart: on-failure
+
+  consumer-plate:
+    build: consumerPlate/.
+    container_name: consumer-plate
+    volumes:
+      - ./consumerPlate/src/main/resources:/app/src/main/resources
+      - ~/.m2:/root/.m2
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-net
+    restart: on-failure
+
+  consumer-sign:
+    build: consumerSign/.
+    container_name: consumer-sign
+    volumes:
+      - ./consumerSign/src/main/resources:/app/src/main/resources
+      - ~/.m2:/root/.m2
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-net
+    restart: on-failure
+
+
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:
