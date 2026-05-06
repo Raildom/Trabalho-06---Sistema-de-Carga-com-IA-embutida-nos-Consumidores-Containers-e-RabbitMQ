@@ -4,7 +4,7 @@
 
 Este projeto implementa um **sistema distribuído em containers Docker** que utiliza **RabbitMQ como broker de mensagens** e dois consumidores com inteligência artificial embarcada usando a biblioteca **Smile**.  
 
-O sistema gera uma carga constante de mensagens (imagens fictícias de rostos e brasões de times de futebol), roteia via RabbitMQ e processa em dois serviços consumidores distintos.  
+O sistema gera uma carga constante de mensagens (imagens de placas de veículos e sinais de trânsito), roteia via RabbitMQ e processa em dois serviços consumidores distintos para identificação e classificação.
 
 ---
 
@@ -21,26 +21,23 @@ O sistema possui **4 containers**:
 1. **Gerador de Mensagens (Message Generator)**  
    - Gera mensagens rápidas (≥ 5 mensagens/segundo).  
    - Tipos de mensagens:  
-     - **Rosto de pessoa** (feliz/triste).  
-     - **Brasão de time de futebol**.  
-   - Publica mensagens no **Exchange `images`** do RabbitMQ com routing keys:
-     - `face` → mensagens de pessoas.  
-     - `team` → mensagens de times.  
+     - **Placa de veículo** (routing key: `plate`).  
+     - **Sinal de trânsito** (routing key: `sign`).  
+   - Publica mensagens no **Exchange `images`** (Topic) do RabbitMQ.
 
 2. **RabbitMQ**  
    - Atua como **broker de mensagens**.  
-   - Usa **Topic Exchange** para rotear mensagens para os consumidores corretos.  
-   - Cada consumidor recebe somente os tipos de mensagens que precisa processar.  
+   - Usa **Topic Exchange** para rotear mensagens para os consumidores corretos baseado na routing key.  
+   - Cada consumidor recebe somente o tipo de mensagem que está apto a processar.  
 
-3. **Consumidor 1 (Consumer Face)**  
-   - Recebe mensagens de rostos.  
-   - Processa com IA (exemplo: **análise de sentimento** usando Smile).  
-   - Diz se a pessoa está **feliz** ou **triste**.  
+3. **Consumidor 1 (Consumer Plate)**  
+   - Recebe mensagens de placas.  
+   - Processa com IA (Smile) para classificar o tipo do veículo.
+   - Simula um OCR para leitura dos caracteres da placa.  
 
-4. **Consumidor 2 (Consumer Team)**  
-   - Recebe mensagens de times de futebol.  
-   - Processa com IA (exemplo: **identificação de brasão de time** com Smile).  
-   - Diz a qual time aquele brasão pertence.  
+4. **Consumidor 2 (Consumer Sign)**  
+   - Recebe mensagens de sinais de trânsito.  
+   - Processa com IA (Smile) para identificar o tipo de sinal (ex: pare, velocidade, planetas/temas específicos do dataset).  
 
 ---
 
@@ -48,11 +45,11 @@ O sistema possui **4 containers**:
 
 ```
 .
-├── Dataset_aliens/       # Pasta com as fotos das "pessoas"
-├── Dataset_times/        # Pasta com as fotos dos brasões de times
-├── consumerFace/         # Pasta com os arquivos da IA de emoções
-├── consumerTeam/         # Pasta com os arquivos da IA de times 
-├── message-generator/    # Pasta com os arquivos do gerador de mensagens
+├── Dataset_plates/       # Pasta com as fotos das placas (a ser criada/montada)
+├── Dataset_signs/        # Pasta com as fotos dos sinais (a ser criada/montada)
+├── consumerPlate/        # Serviço IA de identificação de placas
+├── consumerSign/         # Serviço IA de identificação de sinais
+├── messageGenerator/     # Serviço gerador de carga de mensagens
 └── docker-compose.yml
 ```
 
@@ -74,13 +71,12 @@ docker-compose up --build
 docker-compose down
 ```
 
-
 ---
 
 ## ⚙️ Tecnologias Utilizadas
 
 - **Java 17**  
-- **RabbitMQ** (mensageria distribuída)  
+- **RabbitMQ** (mensageria distribuída com Topic Exchange)  
 - **Docker + Docker Compose** (containerização)  
 - **Smile** (biblioteca de Machine Learning em Java)  
 
@@ -90,10 +86,10 @@ docker-compose down
 
 ```mermaid
 flowchart LR
-    A[Gerador de Mensagens] -->|routingKey=face| B(RabbitMQ Exchange: images)
-    A -->|routingKey=team| B
-    B -->|Fila Face| C[Consumer 1: IA - Placas]
-    B -->|Fila Team| D[Consumer 2: IA - Sinal de Transito]
+    A[Gerador de Mensagens] -->|routingKey=plate| B(RabbitMQ Exchange: images)
+    A -->|routingKey=sign| B
+    B -->|Fila plate| C[Consumer 1: IA - Placas]
+    B -->|Fila sign| D[Consumer 2: IA - Sinais de Trânsito]
 ```
 
 ---
@@ -103,15 +99,17 @@ flowchart LR
 ### Gerador de Mensagens
 ```
 Imagem: feliz1.png | Timestamp: 1759519066567
-Imagem: Marte.png | Timestamp: 1759519066361
+Imagem: marte.png | Timestamp: 1759519066361
 ```
 
-### Consumer Face
+### Consumer Plate
 ```
-[Sentimento Esperado] feliz1.png | [Sentimento Detectado] Feliz 😃
+[Placa Lida: XYZ-9876] Arquivo: feliz1.png | [Tipo do Veículo] Feliz
 ```
 
-### Consumer Team
+### Consumer Sign
 ```
-[Time Esperado] Mercurio.png | [Time Detectado] MercurioFC
+[Arquivo] marte.png | [Sinal Detectado] Marte
 ```
+
+> **Nota:** Como o processamento nos consumidores é configurado para ser mais lento que a geração (Thread.sleep de 2s), as filas no RabbitMQ tendem a encher, permitindo visualizar a carga no painel de gerenciamento (`localhost:15672`).
