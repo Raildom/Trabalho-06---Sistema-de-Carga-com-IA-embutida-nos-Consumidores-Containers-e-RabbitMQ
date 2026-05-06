@@ -92,8 +92,8 @@ docker-compose down
 flowchart LR
     A[Gerador de Mensagens] -->|routingKey=face| B(RabbitMQ Exchange: images)
     A -->|routingKey=team| B
-    B -->|Fila Face| C[Consumer 1: IA - Sentimento]
-    B -->|Fila Team| D[Consumer 2: IA - Identificação de Time]
+    B -->|Fila Face| C[Consumer 1: IA - Placas]
+    B -->|Fila Team| D[Consumer 2: IA - Sinal de Transito]
 ```
 
 ---
