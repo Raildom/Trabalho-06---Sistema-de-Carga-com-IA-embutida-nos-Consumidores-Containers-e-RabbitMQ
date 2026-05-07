@@ -71,7 +71,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.consumer.TeamConsumer</mainClass>
+                            <mainClass>com.consumer.SignConsumer</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

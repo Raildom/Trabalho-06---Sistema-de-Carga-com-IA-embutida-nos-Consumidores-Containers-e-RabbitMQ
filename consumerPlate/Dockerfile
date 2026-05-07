@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn clean package assembly:single -B
 
 
 # Stage 2: runtime leve
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-focal
 WORKDIR /app
 
 # Copia o JAR compilado do stage anterior

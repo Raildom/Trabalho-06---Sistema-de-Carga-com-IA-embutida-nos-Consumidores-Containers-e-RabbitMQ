@@ -70,7 +70,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.consumer.SentimentConsumer</mainClass>
+                            <mainClass>com.consumer.PlateConsumer</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
