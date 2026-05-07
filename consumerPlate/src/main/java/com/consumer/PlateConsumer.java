@@ -1,11 +1,6 @@
 package com.consumer;
 
 import com.rabbitmq.client.*;
-import java.nio.charset.StandardCharsets;
-
-import smile.classification.SVM;
-import smile.math.kernel.LinearKernel;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;

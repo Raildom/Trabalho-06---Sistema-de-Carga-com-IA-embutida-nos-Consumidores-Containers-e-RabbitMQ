@@ -1,8 +1,8 @@
 package com.consumer;
 
 import com.rabbitmq.client.*;
-import java.nio.charset.StandardCharsets;
-import java.io.File;
+
+
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

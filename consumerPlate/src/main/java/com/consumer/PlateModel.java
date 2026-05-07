@@ -1,16 +1,17 @@
 package com.consumer;
 
 import smile.classification.SVM;
-import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+
 
 public class PlateModel {
 
     private SVM<double[]> model;
 
+    @SuppressWarnings("unchecked")
     public PlateModel(String path) throws Exception {
         this.model = (SVM<double[]>) loadModel(path);
     }

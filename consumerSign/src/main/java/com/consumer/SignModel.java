@@ -1,11 +1,9 @@
 package com.consumer;
 
 import smile.classification.LogisticRegression;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 import java.awt.*;
 
 public class SignModel {
