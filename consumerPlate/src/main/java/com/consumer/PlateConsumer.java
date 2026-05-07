@@ -34,6 +34,7 @@ public class PlateConsumer {
         }
 
         Channel channel = connection.createChannel();
+        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
 
         PlateModel model = new PlateModel("/app/src/main/resources/model_plate.bin");
 

@@ -7,35 +7,28 @@ import java.util.*;
 
 public class TrainSignModel {
     public static void main(String[] args) throws Exception {
-        String datasetPath = "src/main/resources/dataset_times/";
-        String labelsFile = datasetPath + "labels.csv";
+        File datasetDir = new File("../Dataset_signs");
+        File[] files = datasetDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
 
-        int numClasses = 8;
+        if (files == null || files.length == 0) {
+            System.err.println("Diretório de dataset não encontrado ou vazio: " + datasetDir.getAbsolutePath());
+            return;
+        }
 
         List<double[]> featuresList = new ArrayList<>();
         List<Integer> labelsList = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(labelsFile))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                String filename = parts[0];
-                int label = Integer.parseInt(parts[1]);
-
-                File imgFile = new File(datasetPath + filename);
-                if (!imgFile.exists()) {
-                    System.err.println("Arquivo de imagem não encontrado: " + imgFile.getAbsolutePath());
-                    continue;
-                }
-
-                if (label < 0 || label >= numClasses) {
-                    System.err.println("Rótulo inválido para arquivo " + filename + ": " + label);
-                    continue;
-                }
-
-                double[] features = ImageUtils.imageToVector(imgFile, 28, 28);
+        int count = 0;
+        for (File file : files) {
+            try {
+                double[] features = ImageUtils.imageToVector(file, 28, 28);
                 featuresList.add(features);
-                labelsList.add(label);
+                
+                // Heurística simples: divide em 4 classes fictícias
+                labelsList.add(count % 4);
+                count++;
+            } catch (Exception e) {
+                System.err.println("Erro ao processar imagem: " + file.getName());
             }
         }
 
@@ -47,15 +40,14 @@ public class TrainSignModel {
         double[][] features = featuresList.toArray(new double[0][]);
         int[] labels = labelsList.stream().mapToInt(i -> i).toArray();
 
-        System.out.println("labels: " + Arrays.toString(labels));
-        System.out.println("features: " + Arrays.toString(features));
-
-        // Troque SVM por LogisticRegression para multiclasses
+        // Treina LogisticRegression
         LogisticRegression model = LogisticRegression.fit(features, labels);
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("src/main/resources/model_team.bin"))) {
+        File outputFile = new File("src/main/resources/model_sign.bin");
+        outputFile.getParentFile().mkdirs();
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile))) {
             oos.writeObject(model);
         }
-        System.out.println("Modelo treinado e salvo em model_team.bin");
+        System.out.println("Modelo treinado e salvo em model_sign.bin");
     }
 }

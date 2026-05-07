@@ -23,8 +23,8 @@ services:
     build: messageGenerator/.
     container_name: message-generator
     volumes:
-      - ./placas_veiculares:/app/images/plates
-      - ./placas_de_transito:/app/images/signs
+      - ./Dataset_plates:/app/images/plates
+      - ./Dataset_signs:/app/images/signs
       - ./libs:/app/libs
     depends_on:
       - rabbitmq

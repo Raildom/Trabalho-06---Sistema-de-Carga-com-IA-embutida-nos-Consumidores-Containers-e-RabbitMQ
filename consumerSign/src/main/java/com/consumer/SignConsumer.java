@@ -32,6 +32,7 @@ public class SignConsumer {
         }
 
         Channel channel = connection.createChannel();
+        channel.queueDeclare(QUEUE_NAME, true, false, false, null);
 
         SignModel model = new SignModel("/app/src/main/resources/model_sign.bin");
 
