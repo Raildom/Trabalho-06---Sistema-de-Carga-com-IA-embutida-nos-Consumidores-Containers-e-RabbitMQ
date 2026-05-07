@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.consumer</groupId>
-    <artifactId>consumerTeam</artifactId>
+    <artifactId>consumerSign</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Consumer Team</name>
+    <name>Consumer Sign</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
