@@ -8,7 +8,9 @@ import java.io.File;
 import java.util.Random;
 
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class MessageGenerator {
     private static final Random random = new Random();
@@ -40,8 +42,8 @@ public class MessageGenerator {
                 long delay = 1000 / messagesPerSecond;
 
                 while (true) {
-                    plates = new File("/app/images/plates").listFiles();
-                    signs = new File("/app/images/signs").listFiles();
+                    plates = getAllFiles(new File("/app/images/plates"));
+                    signs = getAllFiles(new File("/app/images/signs"));
 
                     boolean isPlate = random.nextBoolean();
                     String message;
@@ -66,15 +68,33 @@ public class MessageGenerator {
         }
     }
 
+    private static File[] getAllFiles(File dir) {
+        List<File> fileList = new ArrayList<>();
+        if (dir.exists() && dir.isDirectory()) {
+            for (File sub : dir.listFiles()) {
+                if (sub.isDirectory()) {
+                    File[] subFiles = sub.listFiles((d, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
+                    if (subFiles != null) {
+                        for (File f : subFiles) fileList.add(f);
+                    }
+                } else if (sub.getName().toLowerCase().endsWith(".jpg") || sub.getName().toLowerCase().endsWith(".png")) {
+                    fileList.add(sub);
+                }
+            }
+        }
+        return fileList.toArray(new File[0]);
+    }
+
     private static String generateMessage(File[] files, String mockName) throws Exception {
         if (files == null || files.length == 0) {
-            System.out.println("Aviso: Diretório vazio. Gerando mensagem mock para " + mockName);
+            System.out.println("Aviso: Diretório vazio ou sem imagens nas subpastas. Gerando mensagem mock para " + mockName);
             return "mock_base64_data:::" + mockName;
         }
 
         File imagemArquivo = files[random.nextInt(files.length)];
         String nomeArquivo = imagemArquivo.getName();
-        System.out.println("Imagem: " + nomeArquivo + " | Timestamp: " + System.currentTimeMillis());
+        String categoria = imagemArquivo.getParentFile().getName();
+        System.out.println("Imagem: " + categoria + "/" + nomeArquivo + " | Timestamp: " + System.currentTimeMillis());
 
         byte[] bytes = Files.readAllBytes(imagemArquivo.toPath());
         String base64 = Base64.getEncoder().encodeToString(bytes);

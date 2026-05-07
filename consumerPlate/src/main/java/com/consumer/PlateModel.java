@@ -1,6 +1,6 @@
 package com.consumer;
 
-import smile.classification.SVM;
+import smile.classification.Classifier;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -9,11 +9,11 @@ import java.awt.image.BufferedImage;
 
 public class PlateModel {
 
-    private SVM<double[]> model;
+    private Classifier<double[]> model;
 
     @SuppressWarnings("unchecked")
     public PlateModel(String path) throws Exception {
-        this.model = (SVM<double[]>) loadModel(path);
+        this.model = (Classifier<double[]>) loadModel(path);
     }
 
     public String predict(BufferedImage imageFile) throws Exception {
@@ -21,7 +21,8 @@ public class PlateModel {
         int label = model.predict(vector);
         if (label == 0) return "Carro";
         if (label == 1) return "Moto";
-        return "Caminhão";
+        if (label == 2) return "Caminhao";
+        return "Desconhecido";
     }
 
     public static Object loadModel(String modelPath) throws Exception {
