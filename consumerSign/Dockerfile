@@ -20,7 +20,7 @@ FROM eclipse-temurin:17-jre-focal
 WORKDIR /app
 
 # Copia o JAR compilado do stage anterior
-COPY --from=build /app/target/consumerTeam-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
+COPY --from=build /app/target/consumerSign-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
 
 # Copia recursos (dataset, modelo)
 COPY src/main/resources/ src/main/resources/
