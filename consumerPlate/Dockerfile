@@ -1,5 +1,5 @@
 # Stage 1: build com Maven
-FROM maven:3.9.0-eclipse-temurin-17 AS build
+FROM maven:3.9.5-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # 1. Copia apenas o pom.xml
@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn clean package assembly:single -B
 
 
 # Stage 2: runtime leve
-FROM eclipse-temurin:17-jre-focal
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 
 # Copia o JAR compilado do stage anterior
