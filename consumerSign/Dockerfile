@@ -17,6 +17,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn clean package assembly:single -B
 
 # Stage 2: runtime leve
 FROM eclipse-temurin:21-jre
+RUN apt-get update && apt-get install -y tesseract-ocr tesseract-ocr-por tesseract-ocr-eng libtesseract-dev && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Copia o JAR compilado do stage anterior

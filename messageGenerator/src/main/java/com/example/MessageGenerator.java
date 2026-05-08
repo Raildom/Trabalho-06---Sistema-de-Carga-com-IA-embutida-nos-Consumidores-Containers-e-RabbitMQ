@@ -69,32 +69,24 @@ public class MessageGenerator {
     }
 
     private static File[] getAllFiles(File dir) {
-        List<File> fileList = new ArrayList<>();
         if (dir.exists() && dir.isDirectory()) {
-            for (File sub : dir.listFiles()) {
-                if (sub.isDirectory()) {
-                    File[] subFiles = sub.listFiles((d, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
-                    if (subFiles != null) {
-                        for (File f : subFiles) fileList.add(f);
-                    }
-                } else if (sub.getName().toLowerCase().endsWith(".jpg") || sub.getName().toLowerCase().endsWith(".png")) {
-                    fileList.add(sub);
-                }
-            }
+            return dir.listFiles((d, name) -> 
+                name.toLowerCase().endsWith(".jpg") || 
+                name.toLowerCase().endsWith(".jpeg") || 
+                name.toLowerCase().endsWith(".png"));
         }
-        return fileList.toArray(new File[0]);
+        return new File[0];
     }
 
     private static String generateMessage(File[] files, String mockName) throws Exception {
         if (files == null || files.length == 0) {
-            System.out.println("Aviso: Diretório vazio ou sem imagens nas subpastas. Gerando mensagem mock para " + mockName);
+            System.out.println("Aviso: Diretório vazio ou sem imagens. Gerando mensagem mock para " + mockName);
             return "mock_base64_data:::" + mockName;
         }
 
         File imagemArquivo = files[random.nextInt(files.length)];
         String nomeArquivo = imagemArquivo.getName();
-        String categoria = imagemArquivo.getParentFile().getName();
-        System.out.println("Imagem: " + categoria + "/" + nomeArquivo + " | Timestamp: " + System.currentTimeMillis());
+        System.out.println("Imagem: " + nomeArquivo + " | Timestamp: " + System.currentTimeMillis());
 
         byte[] bytes = Files.readAllBytes(imagemArquivo.toPath());
         String base64 = Base64.getEncoder().encodeToString(bytes);

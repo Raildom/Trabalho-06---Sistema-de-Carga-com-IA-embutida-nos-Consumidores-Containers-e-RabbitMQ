@@ -18,27 +18,31 @@ public class TrainPlateModel {
             return;
         }
 
+        File[] files = datasetDir.listFiles((dir, name) -> 
+            name.toLowerCase().endsWith(".jpg") || 
+            name.toLowerCase().endsWith(".jpeg") || 
+            name.toLowerCase().endsWith(".png"));
+        if (files == null || files.length == 0) {
+            System.err.println("Nenhuma imagem encontrada em " + datasetDir.getAbsolutePath());
+            return;
+        }
+
         List<double[]> featuresList = new ArrayList<>();
         List<Integer> labelsList = new ArrayList<>();
 
-        // Categorias esperadas: Carro, Moto, Caminhao
-        String[] categories = {"Carro", "Moto", "Caminhao"};
-        
-        for (int i = 0; i < categories.length; i++) {
-            File subDir = new File(datasetDir, categories[i]);
-            if (!subDir.exists() || !subDir.isDirectory()) {
-                System.out.println("Aviso: Subdiretório não encontrado: " + subDir.getName());
-                continue;
-            }
+        // Categorias: Carro=0, Moto=1, Caminhao=2
+        for (File file : files) {
+            String name = file.getName().toLowerCase();
+            int label = -1;
+            if (name.startsWith("carro")) label = 0;
+            else if (name.startsWith("moto")) label = 1;
+            else if (name.startsWith("caminhao")) label = 2;
 
-            File[] files = subDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"));
-            if (files == null) continue;
-
-            for (File file : files) {
+            if (label != -1) {
                 try {
                     double[] vector = ImageUtils.imageToVector(file, 28, 28);
                     featuresList.add(vector);
-                    labelsList.add(i); // Label: 0=Carro, 1=Moto, 2=Caminhao
+                    labelsList.add(label);
                 } catch (Exception e) {
                     System.err.println("Erro ao processar arquivo: " + file.getName());
                 }

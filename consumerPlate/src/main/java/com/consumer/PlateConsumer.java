@@ -46,13 +46,14 @@ public class PlateConsumer {
 
                 // Converte para BufferedImage
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
-                String vehicleType = model.predict(img);
-                String simulatedPlateCharacters = simulateOCR(nomeArquivo);
-
-                System.out.println("[Placa Lida: " + simulatedPlateCharacters + "] Arquivo: " + nomeArquivo + " | [Tipo do Veículo] " + vehicleType);
+                System.out.println("-> Recebido para processar: " + nomeArquivo);
                 
-                // Requisito: Cada consumidor deve processar mais lentamente que a taxa de geração para a fila encher
-                Thread.sleep(2000); 
+                String prediction = model.predict(img);
+
+                System.out.println("[Resultado] " + prediction + " | Arquivo: " + nomeArquivo);
+                
+                // Reduzido para limpar a fila mais rápido
+                Thread.sleep(100); 
 
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             }  catch (Exception e) {
@@ -65,15 +66,5 @@ public class PlateConsumer {
         channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
 
         System.out.println("Consumidor pronto, aguardando mensagens na fila 'plate'...");
-    }
-
-    private static String simulateOCR(String filename) {
-        Random random = new Random();
-        StringBuilder letters = new StringBuilder();
-        for (int i = 0; i < 3; i++) {
-            letters.append((char) ('A' + random.nextInt(26)));
-        }
-        int number = random.nextInt(10000);
-        return String.format("%s-%04d", letters.toString(), number);
     }
 }
