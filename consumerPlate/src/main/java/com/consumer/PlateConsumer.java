@@ -46,14 +46,14 @@ public class PlateConsumer {
 
                 // Converte para BufferedImage
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
-                System.out.println("-> Recebido para processar: " + nomeArquivo);
-                
                 String prediction = model.predict(img);
+                String real = inferVehicleFromFilename(nomeArquivo);
+                String cleanPrediction = prediction.replace("Placa: [", "Placa: ").replace("]", "");
 
-                System.out.println("[Resultado] " + prediction + " | Arquivo: " + nomeArquivo);
+                System.out.println("Previsto: " + cleanPrediction + " | Real: " + real);
                 
-                // Reduzido para limpar a fila mais rápido
-                Thread.sleep(100); 
+                // Requisito: Cada consumidor deve processar mais lentamente que a taxa de geração para a fila encher
+                Thread.sleep(2000);
 
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             }  catch (Exception e) {
@@ -66,5 +66,13 @@ public class PlateConsumer {
         channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
 
         System.out.println("Consumidor pronto, aguardando mensagens na fila 'plate'...");
+    }
+
+    private static String inferVehicleFromFilename(String nomeArquivo) {
+        String lower = nomeArquivo.toLowerCase();
+        if (lower.contains("carro")) return "Carro";
+        if (lower.contains("moto")) return "Moto";
+        if (lower.contains("caminhao")) return "Caminhao";
+        return "Desconhecido";
     }
 }

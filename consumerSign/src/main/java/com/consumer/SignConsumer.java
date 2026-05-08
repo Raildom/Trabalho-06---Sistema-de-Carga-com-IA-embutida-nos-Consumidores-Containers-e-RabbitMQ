@@ -50,7 +50,8 @@ public class SignConsumer {
                 // Converte para BufferedImage
                 BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
                 String prediction = model.predict(img);
-                System.out.println("[Arquivo] " + nomeArquivo + " | " + "[Sinal Detectado] " + prediction);
+                String real = inferSignFromFilename(nomeArquivo);
+                System.out.println("Previsto: " + prediction + " | Real: " + real);
                 
                 // Requisito: Cada consumidor deve processar mais lentamente que a taxa de geração para a fila encher
                 Thread.sleep(2000);
@@ -66,5 +67,13 @@ public class SignConsumer {
         channel.basicConsume(QUEUE_NAME, false, deliverCallback, consumerTag -> {});
 
         System.out.println("Consumidor pronto, aguardando mensagens na fila 'sign'...");
+    }
+
+    private static String inferSignFromFilename(String nomeArquivo) {
+        String lower = nomeArquivo.toLowerCase();
+        if (lower.contains("pare")) return "Pare";
+        if (lower.contains("proibidodireita")) return "Proibido Direita";
+        if (lower.contains("placa50")) return "Placa 50";
+        return "Desconhecido";
     }
 }
